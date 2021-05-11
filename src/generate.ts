@@ -7,7 +7,12 @@ import ApiGenerator, {
   isReference,
   supportDeepObjects,
 } from 'oazapfts/lib/codegen/generate';
-import { createQuestionToken, keywordType } from 'oazapfts/lib/codegen/tscodegen';
+import {
+  createQuestionToken,
+  keywordType,
+  createPropertyAssignment,
+  isValidIdentifier,
+} from 'oazapfts/lib/codegen/tscodegen';
 import { OpenAPIV3 } from 'openapi-types';
 import { generateReactHooks } from './generators/react-hooks';
 import { GenerationOptions, OperationDefinition } from './types';
@@ -240,7 +245,7 @@ export async function generateApi(
     const queryArg: QueryArgDefinitions = {};
     for (const param of parameters) {
       let name = camelCase(param.name);
-      queryArg[name] = {
+      queryArg[param.name] = {
         origin: 'param',
         name,
         originalName: param.name,
@@ -273,6 +278,12 @@ export async function generateApi(
 
     // TODO strip param names where applicable
     //const stripped = camelCase(param.name.replace(/.+\./, ""));
+    const propertyName = (name: string | ts.PropertyName): ts.PropertyName => {
+      if (typeof name === 'string') {
+        return isValidIdentifier(name) ? factory.createIdentifier(name) : factory.createStringLiteral(name);
+      }
+      return name;
+    };
 
     const QueryArg = factory.createTypeReferenceNode(
       registerInterface(
@@ -286,7 +297,7 @@ export async function generateApi(
               const comment = def.origin === 'param' ? def.param.description : def.body.description;
               const node = factory.createPropertySignature(
                 undefined,
-                name,
+                propertyName(name),
                 createQuestionToken(!def.required),
                 def.type
               );
@@ -436,9 +447,11 @@ function generateQuerArgObjectLiteralExpression(queryArgs: QueryArgDefinition[],
   return factory.createObjectLiteralExpression(
     queryArgs.map(
       (param) =>
-        factory.createPropertyAssignment(
-          factory.createIdentifier(param.originalName),
-          factory.createPropertyAccessExpression(rootObject, factory.createIdentifier(param.name))
+        createPropertyAssignment(
+          param.originalName,
+          isValidIdentifier(param.originalName)
+            ? factory.createPropertyAccessExpression(rootObject, factory.createIdentifier(param.originalName))
+            : factory.createElementAccessExpression(rootObject, factory.createStringLiteral(param.originalName))
         ),
       true
     )
