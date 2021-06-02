@@ -173,7 +173,7 @@ export async function generateApi(
         }),
         ...Object.values(interfaces),
         ...apiGen['aliases'],
-        ...(hooks ? [generateReactHooks({ exportName, operationDefinitions })] : []),
+        // ...(hooks ? [generateReactHooks({ exportName, operationDefinitions })] : []),
       ],
       factory.createToken(ts.SyntaxKind.EndOfFileToken),
       ts.NodeFlags.None
