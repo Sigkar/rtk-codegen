@@ -20,6 +20,12 @@ program
   .option('--argSuffix <name>', 'pass arg suffix')
   .option('--responseSuffix <name>', 'pass response suffix')
   .option('--baseUrl <url>', 'pass baseUrl')
+  .option(
+    '--excludeMethods <methods...>',
+    'exclude operation methods (ex: head, options)',
+    (v: string, prev: Set<string>) => prev.add(v),
+    new Set<string>()
+  )
   .option('-h, --hooks', 'generate React Hooks')
   .option('-c, --config <path>', 'pass tsconfig path for resolve path alias')
   .option('-f, --file <filename>', 'output file name (ex: generated.api.ts)')
@@ -39,6 +45,7 @@ if (program.args.length === 0) {
     'argSuffix',
     'responseSuffix',
     'baseUrl',
+    'excludeMethods',
     'hooks',
     'file',
     'config',

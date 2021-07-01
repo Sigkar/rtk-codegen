@@ -45,6 +45,7 @@ export async function generateApi(
     argSuffix = 'ApiArg',
     responseSuffix = 'ApiResponse',
     baseUrl,
+    excludeMethods,
     hooks,
     outputFile,
     isDataResponse = defaultIsDataResponse,
@@ -60,7 +61,7 @@ export async function generateApi(
 
   const apiGen = new ApiGenerator(v3Doc, {});
 
-  const operationDefinitions = getOperationDefinitions(v3Doc);
+  const operationDefinitions = getOperationDefinitions(v3Doc, excludeMethods);
 
   const resultFile = ts.createSourceFile(
     'someFileName.ts',
