@@ -17,6 +17,7 @@ export type GenerationOptions = {
   argSuffix?: string;
   responseSuffix?: string;
   baseUrl?: string;
+  excludeMethods: Set<string>;
   hooks?: boolean;
   outputFile?: string;
   compilerOptions?: ts.CompilerOptions;
